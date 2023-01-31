@@ -2,10 +2,13 @@ import os
 import zipfile
 import requests
 import tqdm
+from time import sleep
+
 
 images_url = "https://cecas.clemson.edu/~ahoover/stare/images/all-images.zip"
 diagnoses_url = "https://gist.github.com/OliverMatthews/b3ce29edccdd835ac3719995f2b322ec/archive" \
                 "/20258b7c08eee8a81d1320d216bc7b13bb00199a.zip"
+optic_nerve_url = "https://cecas.clemson.edu/~ahoover/stare/nerve/GT_NERVES.txt"
 
 
 def download_images():
@@ -65,6 +68,8 @@ def download_diagnoses():
             f.write(data)
     t.close()
 
+    sleep(0.1)
+
     print("Unzipping STARE diagnoses data.")
 
     # Create a progress bar
@@ -92,6 +97,62 @@ def download_diagnoses():
     os.rmdir("data/STARE/diagnoses")
 
 
-def download_complete():
+def download_optic_nerve():
+    # If the data/STARE/optic_nerve folder does not exist, create it
+    if not os.path.exists("data/STARE/"):
+        os.makedirs("data/STARE/")
+
+    print("Downloading STARE optic nerve data from " + optic_nerve_url)
+
+    # Create a progress bar
+    r = requests.get(optic_nerve_url, stream=True)
+    total_size = int(r.headers.get("content-length", 0))
+    block_size = 1024
+
+    # Download the data from the url
+    with open("data/STARE/optic_nerve.txt", "wb") as f:
+        for data in r.iter_content(block_size):
+            f.write(data)
+
+    # Replace all instances of ".jpg" with ".ppm"
+    with open("data/STARE/optic_nerve.txt", "r") as f:
+        data = f.read()
+        data = data.replace(".jpg", ".ppm")
+    with open("data/STARE/optic_nerve.txt", "w") as f:
+        f.write(data)
+
+    # Convert the data to a csv file
+    optic_nerve_to_csv()
+
+
+# Convert the optic nerve data to a csv file
+def optic_nerve_to_csv():
+    # Open the optic nerve data file
+    with open("data/STARE/optic_nerve.txt", "r") as f:
+        # Read the data
+        data = f.read()
+
+        # Split the data into lines
+        lines = data.split("\n")
+
+        # For each line, split the line into the image name and the x and y coordinates
+        lines = [line.split(" ") for line in lines]
+        lines = lines[:-1]
+
+        # Write the data to a csv file
+        with open("data/STARE/optic_nerve.csv", "w") as f:
+            # Write the header
+            f.write("ID,x,y\n")
+
+            # Write the data
+            for line in lines:
+                f.write(line[0] + "," + line[1] + "," + line[2] + "\n")
+
+    # Delete the txt file
+    os.remove("data/STARE/optic_nerve.txt")
+
+
+def download_full():
     download_images()
     download_diagnoses()
+    download_optic_nerve()
