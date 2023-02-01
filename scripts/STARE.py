@@ -7,7 +7,7 @@ from time import sleep
 
 images_url = "https://cecas.clemson.edu/~ahoover/stare/images/all-images.zip"
 diagnoses_url = "https://gist.github.com/OliverMatthews/b3ce29edccdd835ac3719995f2b322ec/archive" \
-                "/20258b7c08eee8a81d1320d216bc7b13bb00199a.zip"
+                "/d6fbd2c69f7e1e0005016e6b2d570722ad7652f4.zip"
 optic_nerve_url = "https://cecas.clemson.edu/~ahoover/stare/nerve/GT_NERVES.txt"
 
 
@@ -87,11 +87,11 @@ def download_diagnoses():
     os.remove("data/STARE/diagnoses.zip")
 
     # Rename the file
-    os.rename("data/STARE/b3ce29edccdd835ac3719995f2b322ec-20258b7c08eee8a81d1320d216bc7b13bb00199a",
+    os.rename("data/STARE/b3ce29edccdd835ac3719995f2b322ec-d6fbd2c69f7e1e0005016e6b2d570722ad7652f4",
               "data/STARE/diagnoses")
 
     # Move the file to the data/STARE folder
-    os.replace("data/STARE/diagnoses/STARE_data.csv", "data/STARE/diagnoses.csv")
+    os.replace("data/STARE/diagnoses/STARE_diagnoses_data.csv", "data/STARE/diagnoses.csv")
 
     # Delete the folder
     os.rmdir("data/STARE/diagnoses")
@@ -142,7 +142,7 @@ def optic_nerve_to_csv():
         # Write the data to a csv file
         with open("data/STARE/optic_nerve.csv", "w") as f:
             # Write the header
-            f.write("ID,x,y\n")
+            f.write("ID,y,x\n")
 
             # Write the data
             for line in lines:
